@@ -157,7 +157,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         totalAgents = gameState.getNumAgents() 
 
-        def minimax(state, agentIndex, depth):
+        def miniMax(state, agentIndex, depth):
             a = None  
             agent = agentIndex % totalAgents #we iterate through the agents, modding by their number will always point to correct agent index
             if((agent) == 0): #if the agent is pacman, we are in max
@@ -167,7 +167,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 v = float('-inf')
                 for action in state.getLegalActions(agent): #get all the legal actions
                     successor = state.generateSuccessor(agent, action)
-                    successorVal = minimax(successor, agent+1, depth)[0] #call minimax on them
+                    successorVal = miniMax(successor, agent+1, depth)[0] #call minimax on them
                     if(successorVal > v): 
                         v = successorVal #find the max value
                         a = action #but save the action as well
@@ -178,13 +178,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 v = float('inf')
                 for action in state.getLegalActions(agent):
                     successor = state.generateSuccessor(agent, action)
-                    successorVal = minimax(successor, agent+1, depth)[0]
+                    successorVal = miniMax(successor, agent+1, depth)[0]
                     if(successorVal < v):
                         v = successorVal
                         a = action
                 return v,a
 
-        return minimax(gameState, 0, 0)[1] #the actual call
+        return miniMax(gameState, 0, 0)[1] #the actual call
 
         util.raiseNotDefined()
 
@@ -252,6 +252,37 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
+        def terminalTest(state,depth):
+            return ((state.isWin()) or (state.isLose()) or (self.depth < depth))
+
+        totalAgents = gameState.getNumAgents() 
+
+        def expectiMax(state, agentIndex, depth):
+            a = None  
+            agent = agentIndex % totalAgents #we iterate through the agents, modding by their number will always point to correct agent index
+            if((agent) == 0): #max
+                depth=depth+1 #we need to increase the depth only when we are in max since all the ghost moves accure in the same depth
+                if(terminalTest(state,depth)):
+                    return self.evaluationFunction(state), None
+                v = float('-inf')
+                for action in state.getLegalActions(agent): #get all the legal actions
+                    successor = state.generateSuccessor(agent, action)
+                    successorVal = expectiMax(successor, agent+1, depth)[0] #call minimax on them
+                    if(successorVal > v): 
+                        v = successorVal
+                        a = action
+                return v,a
+            else: #chance nodes
+                if(terminalTest(state,depth)):
+                    return self.evaluationFunction(state), None
+                valueSum = 0
+                for action in state.getLegalActions(agent):
+                    successor = state.generateSuccessor(agent, action)
+                    successorVal = expectiMax(successor, agent+1, depth)[0]
+                    valueSum +=successorVal #finding the sum
+                return valueSum/len(state.getLegalActions(agent)),None #return the average value of all the actions by dividing the sum by the number of all the possible ones
+
+        return expectiMax(gameState, 0, 0)[1] #the actual call
         util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState: GameState):
