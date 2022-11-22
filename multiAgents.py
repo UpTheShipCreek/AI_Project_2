@@ -84,13 +84,9 @@ class ReflexAgent(Agent):
         #   )
         val = 0 
         for (fx,fy) in newFood.asList(): 
-            if(newScaredTimes == 0): #if the ghosts are not scared
-                if((fx,fy) in newGhostStates): #and the food is where the ghosts are 
-                    continue #the position is of little value
-            else:
-                (x,y) = newPos
-                dist = abs(x-fx)+abs(y-fy) #else calculate how far every food point is
-                val+= 1/dist #the closer they are on average, the better
+            (x,y) = newPos
+            dist = abs(x-fx)+abs(y-fy) #calculate how far every food point is
+            val+= 1/dist #the closer they are on average, the better
         return successorGameState.getScore() + val
 
 def scoreEvaluationFunction(currentGameState: GameState):
@@ -290,9 +286,25 @@ def betterEvaluationFunction(currentGameState: GameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: <Copy-pasted the reflex method. Initially I had written function that took into account many more parameters but it was a lot slower and performed a lot worse so I guess those two lines is all we need for this simple game.>
     """
     "*** YOUR CODE HERE ***"
+    (x,y) = currentGameState.getPacmanPosition()
+    score = currentGameState.getScore()
+    ghostPositions = currentGameState.getGhostPositions()
+    numberOghosts = currentGameState.getNumAgents()-1
+    foodPositions = currentGameState.getFood().asList()
+    numberOfood = currentGameState.getNumFood()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+
+    val = 0 
+    dist = 0
+    for (fx,fy) in foodPositions: 
+        dist = abs(x-fx)+abs(y-fy) #calculate how far every food point is
+        val+= 1/dist #the closer they are on average, the better
+    return score + val
+
     util.raiseNotDefined()
 
 # Abbreviation
